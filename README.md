@@ -37,7 +37,7 @@ Tugasmu adalah mengekstrak file tersebut dan mengolah isi di dalamnya untuk mend
 
 ### Penjelasan Code ```action.c``` berdasarkan kategori soal
 #### a. Downloading the Clues
-#### Soal : jika ./action dijalankan tanpa argumen, maka program akan mengunduh dan mengekstrak Clues.zip. Jika folder Clues/ sudah ada, maka skip download.
+#### Soal : jika ```./action``` dijalankan tanpa argumen, maka program akan mengunduh dan mengekstrak Clues.zip. Jika folder ```Clues/``` sudah ada, maka skip download.
 #### Implementasi code :
 ```bash
 void downloadClues() {
@@ -90,3 +90,5 @@ void downloadClues() {
 
 ```
 
+#### b. Filtering the Files
+#### Soal : Menyaring file yang hanya memiliki 1 huruf atau angka (tanpa karakter spesial) dan menyimpannya ke folder Filtered/. File lain dihapus.
