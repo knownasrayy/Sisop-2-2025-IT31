@@ -36,3 +36,57 @@ Tugasmu adalah mengekstrak file tersebut dan mengolah isi di dalamnya untuk mend
     - Cek hasilnya ke situs checker
 
 ### Penjelasan Code ```action.c``` berdasarkan kategori soal
+#### a. Downloading the Clues
+#### Soal : jika ./action dijalankan tanpa argumen, maka program akan mengunduh dan mengekstrak Clues.zip. Jika folder Clues/ sudah ada, maka skip download.
+#### Implementasi code :
+```bash
+void downloadClues() {
+    struct stat st = {0};
+
+    // Mengecek apakah folder Clues sudah ada
+    if (stat("Clues", &st) == -1) {
+        // Download Clues.zip menggunakan wget
+        pid_t pid = fork();
+        if (pid == 0) {
+            execl("/bin/sh", "sh", "-c",
+                "wget --no-check-certificate --content-disposition \"https://drive.usercontent.google.com/u/0/uc?id=...\" -O Clues.zip",
+                NULL);
+            perror("wget failed");
+            exit(EXIT_FAILURE);
+        } else {
+            wait(NULL);
+        }
+
+        // Buat folder Clues dan unzip isi Clues.zip ke dalamnya
+        mkdir("Clues", 0777);
+        pid = fork();
+        if (pid == 0) {
+            char *argv[] = {"unzip", "Clues.zip", "-d", "Clues", NULL};
+            execvp("unzip", argv);
+            exit(EXIT_FAILURE);
+        } else {
+            wait(NULL);
+        }
+
+        // Jika ada nested folder (Clues/Clues), pindahkan isinya
+        if (stat("Clues/Clues", &nested) == 0) {
+            pid = fork();
+            if (pid == 0) {
+                execl("/bin/sh", "sh", "-c", "mv Clues/Clues/* Clues/", NULL);
+                exit(EXIT_FAILURE);
+            } else {
+                wait(NULL);
+                rmdir("Clues/Clues");
+            }
+        }
+
+        // Hapus Clues.zip
+        unlink("Clues.zip");
+        printf("Berhasil download dan extract Clues.zip\n");
+    } else {
+        printf("Folder Clues sudah ada, skip download.\n");
+    }
+}
+
+```
+
