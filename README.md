@@ -322,7 +322,25 @@ if (strcmp(argv[1], "--start") == 0) {
 
 
 
+#### a. Starting the Daemon
+**Soal:** Jalankan program sebagai daemon menggunakan `--start`
 
+**Implementasi:**
+```bash
+if (strcmp(argv[1], "--start") == 0) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        umask(0);
+        setsid();
+        chdir("/path/to/dir");
+        close(STDIN_FILENO);
+        close(STDOUT_FILENO);
+        close(STDERR_FILENO);
+        // simpan PID ke .starterkit.pid
+        // tulis ke activity.log
+    }
+}
+```
 
 
     
