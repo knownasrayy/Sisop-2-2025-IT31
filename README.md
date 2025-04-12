@@ -35,4 +35,4 @@ Tugasmu adalah mengekstrak file tersebut dan mengolah isi di dalamnya untuk mend
     - Buka Decoded.txt
     - Cek hasilnya ke situs checker
 
-###Penjelasan Code 'action.c' berdasarkan kategori soal
+### Penjelasan Code ```action.c``` berdasarkan kategori soal
