@@ -11,3 +11,26 @@ Kamu terbangun di tempat misterius yang dijaga naga bernama Cyrus. Untuk melewat
 Tugasmu adalah mengekstrak file tersebut dan mengolah isi di dalamnya untuk mendapatkan password yang dapat kamu cek di website berikut:
 
 🌐 https://dragon-pw-checker.vercel.app/
+
+### Alur Pengerjaan
+1. Download Clues
+    - ./action
+    - Unduh Clues.zip dan extract isinya ke folder Clues/
+
+2. Filter Files
+    - ./action -m Filter
+    - File valid (nama 1 karakter huruf/angka + .txt) → Filtered/
+    - File lainnya dihapus
+
+3. Combine File Content
+    - ./action -m Combine
+    - Gabung isi file valid ke Combined.txt (urutan: angka-huruf-angka-huruf)
+    - Hapus file setelah digabung
+
+4. Decode File
+    - ./action -m Decode
+    - Lakukan ROT13 ke isi Combined.txt, hasil ke Decoded.txt
+
+5. Password Check
+    - Buka Decoded.txt
+    - Cek hasilnya ke situs checker
