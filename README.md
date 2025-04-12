@@ -259,3 +259,62 @@ soal_1/
 └── action (binary hasil compile)
 
 ```
+
+
+## Soal_2 – The Starter Kit: Kanade & Mafuyu's Decryption Daemon
+### Deskripsi Singkat
+Kanade dan Mafuyu menemukan starter kit misterius yang menyimpan file mencurigakan. Mereka memintamu membuat sistem dekripsi yang berjalan secara daemon dan mampu menangani proses karantina, pengembalian, serta penghapusan file secara otomatis, lengkap dengan pencatatan ke dalam log.
+
+Starter kit harus bisa dijalankan dan dimatikan, serta mendukung mode khusus:
+- `--start` untuk menjalankan sebagai daemon
+- `--shutdown` untuk menghentikan daemon
+- `--quarantine` untuk memindahkan file mencurigakan ke folder `Quarantine/`
+- `--return` untuk mengembalikan file dari `Quarantine/` ke `Starter_Kit/`
+- `--eradicate` untuk menghapus file secara permanen
+
+---
+
+### Alur Pengerjaan
+1. Jalankan starter kit
+    - `./starter_kit --start`
+    - Daemon aktif, menyiapkan semua folder yang dibutuhkan
+
+2. Karantina File
+    - `./starter_kit --quarantine`
+    - File mencurigakan di `Starter_Kit/` dipindahkan ke `Quarantine/`
+
+3. Pengembalian File
+    - `./starter_kit --return`
+    - File dikembalikan dari `Quarantine/` ke `Starter_Kit/`
+
+4. Penghapusan File
+    - `./starter_kit --eradicate`
+    - File di `Quarantine/` dihapus permanen
+
+5. Matikan daemon
+    - `./starter_kit --shutdown`
+
+6. Semua aktivitas dicatat di `activity.log`
+
+---
+
+### Penjelasan Code `starter_kit.c` berdasarkan kategori soal
+
+#### a. Starting the Daemon
+**Soal:** Jalankan program sebagai daemon menggunakan `--start`
+
+**Implementasi:**
+```c
+if (strcmp(argv[1], "--start") == 0) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        umask(0);
+        setsid();
+        chdir("/path/to/dir");
+        close(STDIN_FILENO);
+        close(STDOUT_FILENO);
+        close(STDERR_FILENO);
+        // simpan PID ke .starterkit.pid
+        // tulis ke activity.log
+    }
+}
