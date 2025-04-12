@@ -34,3 +34,5 @@ Tugasmu adalah mengekstrak file tersebut dan mengolah isi di dalamnya untuk mend
 5. Password Check
     - Buka Decoded.txt
     - Cek hasilnya ke situs checker
+
+###Penjelasan Code 'action.c' berdasarkan kategori soal
