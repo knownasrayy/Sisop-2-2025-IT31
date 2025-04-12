@@ -221,3 +221,22 @@ int main(int argc, char *argv[]) {
 }
 
 ```
+
+#### Contoh penggunaan program
+```bash
+# Download dan extract Clues.zip
+$ ./action
+
+# Filter file valid ke folder Filtered/
+$ ./action -m Filter
+
+# Gabungkan isi file menjadi Combined.txt
+$ ./action -m Combine
+
+# Decode hasil gabungan ke Decoded.txt
+$ ./action -m Decode
+
+# Cek hasil di website checker
+$ cat Decoded.txt
+
+```
