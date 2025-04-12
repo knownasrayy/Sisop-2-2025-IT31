@@ -318,3 +318,8 @@ if (strcmp(argv[1], "--start") == 0) {
         // tulis ke activity.log
     }
 }
+
+#### a. Starting the Daemon
+
+
+    
