@@ -39,11 +39,11 @@ void exec_cmd(char *cmd, char *arg1, char *arg2, char *arg3) {
 void downloadClues() {
     struct stat st = {0};
 
-    // Jika folder "Clues" belum ada, lakukan proses download dan extract
+    // Untuk Jika folder "Clues" belum ada, lakukan proses download dan extract
     if (stat("Clues", &st) == -1) {
         pid_t pid = fork();
         if (pid == 0) {
-            // Download file Clues.zip dari link menggunakan wget
+            // Untuk Download file Clues.zip dari link menggunakan wget
             execl("/bin/sh", "sh", "-c",
                   "wget --no-check-certificate --content-disposition \"https://drive.usercontent.google.com/u/0/uc?id=1xFn1OBJUuSdnApDseEczKhtNzyGekauK&export=download\" -O Clues.zip",
                   NULL);
@@ -53,7 +53,7 @@ void downloadClues() {
             wait(NULL);
         }
 
-        // Buat folder Clues
+        // membuat folder Clues
         mkdir("Clues", 0777);
 
         // Extract Clues.zip ke folder Clues
@@ -67,7 +67,7 @@ void downloadClues() {
             wait(NULL);
         }
 
-        // Jika hasil unzip berada dalam nested folder (Clues/Clues), pindahkan isinya
+        // Agar hasil unzip berada dalam nested folder (Clues/Clues), terus pindahkan isinya
         struct stat nested;
         if (stat("Clues/Clues", &nested) == 0) {
             pid = fork();
@@ -81,7 +81,7 @@ void downloadClues() {
             }
         }
 
-        // Hapus zip setelah extract
+        // Untuk Hapus zip setelah extract
         unlink("Clues.zip");
         printf("Berhasil download dan extract Clues.zip\n");
     } else {
@@ -99,7 +99,7 @@ void filterFiles() {
         return;
     }
 
-    // Bersihkan folder Filtered jika sudah ada
+    // Untuk membersihkan folder Filtered
     pid_t pid = fork();
     if (pid == 0) {
         execl("/bin/sh", "sh", "-c", "rm -rf Filtered", NULL);
@@ -123,17 +123,17 @@ void filterFiles() {
             while ((sub = readdir(subdir)) != NULL) {
                 if (sub->d_type == DT_REG) {
                     int len = strlen(sub->d_name);
-                    // Syarat: hanya file dengan nama 1 huruf/angka + ".txt" (panjang 5 karakter)
+                   
                     if (len == 5 && ((sub->d_name[0] >= 'a' && sub->d_name[0] <= 'z') || (sub->d_name[0] >= '0' && sub->d_name[0] <= '9')) &&
                         strcmp(&sub->d_name[1], ".txt") == 0) {
                         char src[256], dest[256];
                         snprintf(src, sizeof(src), "%s/%s", path, sub->d_name);
                         snprintf(dest, sizeof(dest), "Filtered/%s", sub->d_name);
-                        rename(src, dest); // Pindahkan ke folder Filtered
+                        rename(src, dest); // Memindahkan ke folder Filtered
                     } else {
                         char to_delete[256];
                         snprintf(to_delete, sizeof(to_delete), "%s/%s", path, sub->d_name);
-                        remove(to_delete); // Hapus jika tidak sesuai kriteria
+                        remove(to_delete); // Menghapus jika tidak sesuai kriteria
                     }
                 }
             }
@@ -163,7 +163,7 @@ void combineFiles() {
         return;
     }
 
-    // Pisahkan file nama angka dan huruf
+    // memisahkan file nama angka dan huruf
     struct dirent *de;
     char angka[100][100], huruf[100][100];
     int idxA = 0, idxH = 0;
@@ -178,7 +178,7 @@ void combineFiles() {
     }
     closedir(dir);
 
-    // Urutkan angka (numerik)
+    // Mengurutkan angka (numerik)
     for (int i = 0; i < idxA - 1; i++) {
         for (int j = i + 1; j < idxA; j++) {
             if (atoi(angka[i]) > atoi(angka[j])) {
@@ -190,7 +190,7 @@ void combineFiles() {
         }
     }
 
-    // Urutkan huruf (alphabet)
+    // Mengurutkan huruf (alphabet)
     for (int i = 0; i < idxH - 1; i++) {
         for (int j = i + 1; j < idxH; j++) {
             if (strcmp(huruf[i], huruf[j]) > 0) {
@@ -202,7 +202,7 @@ void combineFiles() {
         }
     }
 
-    // Gabung isi file dengan urutan angka → huruf → angka → huruf...
+    // Menggabung isi file dengan urutan angka → huruf → angka → huruf...
     int i = 0, j = 0;
     while (i < idxA || j < idxH) {
         if (i < idxA) {
@@ -213,7 +213,7 @@ void combineFiles() {
                 while (fgets(buf, sizeof(buf), fp))
                     fputs(buf, combined);
                 fclose(fp);
-                remove(path); // Hapus setelah isi diproses
+                remove(path); // Menghapus setelah isi diproses
             }
         }
         if (j < idxH) {
@@ -249,7 +249,7 @@ void decodeFile() {
         return;
     }
 
-    // Lakukan decode rot13 karakter demi karakter
+    // decode rot13 karakter demi karakter
     char c;
     while ((c = fgetc(in)) != EOF) {
         fputc(rot13(c), out);
