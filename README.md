@@ -2,7 +2,7 @@
 
 - Erlangga Valdhio Putra Sulistio_5027241030
 - Rayhan Agnan Kusuma_5027241102
-- S.Farhan Baig_5027241097
+- S. Farhan Baig_5027241097
 
 
 ## Soal_1 – The Stellar Showdown: Directory Lister vs Naga Cyrus
