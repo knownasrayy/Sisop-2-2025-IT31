@@ -240,3 +240,22 @@ $ ./action -m Decode
 $ cat Decoded.txt
 
 ```
+
+### Struktur Direktori Akhir
+```bash
+soal_1/
+├── action.c
+├── Clues/
+│   ├── ClueA/
+│   ├── ClueB/
+│   ├── ClueC/
+│   └── ClueD/
+├── Filtered/
+│   ├── a.txt
+│   ├── 1.txt
+│   └── ...
+├── Combined.txt
+├── Decoded.txt
+└── action (binary hasil compile)
+
+```
