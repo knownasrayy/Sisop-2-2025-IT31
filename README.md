@@ -304,7 +304,7 @@ Starter kit harus bisa dijalankan dan dimatikan, serta mendukung mode khusus:
 **Soal:** Jalankan program sebagai daemon menggunakan `--start`
 
 **Implementasi:**
-```c
+```bash
 if (strcmp(argv[1], "--start") == 0) {
     pid_t pid = fork();
     if (pid == 0) {
@@ -318,8 +318,11 @@ if (strcmp(argv[1], "--start") == 0) {
         // tulis ke activity.log
     }
 }
+```
 
-#### a. Starting the Daemon
+
+
+
 
 
     
