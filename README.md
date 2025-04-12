@@ -91,4 +91,133 @@ void downloadClues() {
 ```
 
 #### b. Filtering the Files
-#### Soal : Menyaring file yang hanya memiliki 1 huruf atau angka (tanpa karakter spesial) dan menyimpannya ke folder Filtered/. File lain dihapus.
+#### Soal : Menyaring file yang hanya memiliki 1 huruf atau angka (tanpa karakter spesial) dan menyimpannya ke folder ```Filtered/```. File lain dihapus.
+#### Implementasi code :
+```bash
+void filterFiles() {
+    DIR *dir = opendir("./Clues");
+    if (!dir) {
+        printf("Folder Clues tidak ditemukan!\n");
+        return;
+    }
+
+    // Hapus folder Filtered jika sudah ada
+    pid_t pid = fork();
+    if (pid == 0) {
+        execl("/bin/sh", "sh", "-c", "rm -rf Filtered", NULL);
+        exit(0);
+    } else {
+        wait(NULL);
+    }
+
+    mkdir("Filtered", 0777);
+    ...
+
+    // Iterasi folder ClueA-D
+    while ((de = readdir(dir)) != NULL) {
+        if (de->d_type == DT_DIR && ... ) {
+            ...
+            // Iterasi file dalam setiap ClueX/
+            while ((sub = readdir(subdir)) != NULL) {
+                if (sub->d_type == DT_REG) {
+                    // Validasi nama file: hanya 1 karakter + ".txt"
+                    if (len == 5 && isalnum(sub->d_name[0]) &&
+                        strcmp(&sub->d_name[1], ".txt") == 0) {
+                        rename(src, dest); // Pindahkan ke Filtered
+                    } else {
+                        remove(to_delete); // Hapus file lain
+                    }
+                }
+            }
+        }
+    }
+
+    printf("Filtering selesai!\n");
+}
+
+```
+
+####  c. Combine the File Content
+#### Soal : Gabungkan isi dari file .txt di  ```Filtered/ ``` ke dalam Combined.txt dengan urutan angka → huruf → angka → huruf dan seterusnya. File aslinya dihapus setelah digabung.
+#### Implementasi code :
+```bash
+void combineFiles() {
+    ...
+
+    // Pisahkan nama file berdasarkan huruf atau angka
+    while ((de = readdir(dir)) != NULL) {
+        if (de->d_type == DT_REG) {
+            if (isdigit(de->d_name[0]))
+                strcpy(angka[idxA++], de->d_name);
+            else if (isalpha(de->d_name[0]))
+                strcpy(huruf[idxH++], de->d_name);
+        }
+    }
+
+    // Urutkan angka secara numerik dan huruf secara alphabet
+    sort(angka);
+    sort(huruf);
+
+    // Gabungkan isinya secara berselang-seling: angka-huruf
+    int i = 0, j = 0;
+    while (i < idxA || j < idxH) {
+        if (i < idxA) baca_dan_tulis(angka[i++]);
+        if (j < idxH) baca_dan_tulis(huruf[j++]);
+    }
+
+    printf("Combine selesai!\n");
+}
+
+```
+
+
+####  d. Decode the File
+#### Soal : Decode isi Combined.txt menggunakan ROT13, lalu simpan ke Decoded.txt.
+#### Implementasi code :
+```bash
+char rot13(char c) {
+    if ('a' <= c && c <= 'z') return 'a' + (c - 'a' + 13) % 26;
+    if ('A' <= c && c <= 'Z') return 'A' + (c - 'A' + 13) % 26;
+    return c;
+}
+
+void decodeFile() {
+    FILE *in = fopen("Combined.txt", "r");
+    FILE *out = fopen("Decoded.txt", "w");
+
+    char c;
+    while ((c = fgetc(in)) != EOF) {
+        fputc(rot13(c), out);
+    }
+
+    fclose(in);
+    fclose(out);
+    printf("Decode selesai!\n");
+}
+
+
+```
+####  e. Password Check
+#### Soal : Masukkan hasil dari Decoded.txt ke website checker:
+ ```https://dragon-pw-checker.vercel.app ```
+#### Implementasi :
+        - Tidak ada kode spesifik karena dicek manual via browser
+        - Cukup buka Decoded.txt, copy, lalu paste ke website checker
+
+#### Tambahan Error Handling / Help Message
+#### Implementasi :
+```bash
+int main(int argc, char *argv[]) {
+    if (argc == 1) {
+        downloadClues();
+    } else if (argc == 3 && strcmp(argv[1], "-m") == 0) {
+        if (strcmp(argv[2], "Filter") == 0) filterFiles();
+        else if (strcmp(argv[2], "Combine") == 0) combineFiles();
+        else if (strcmp(argv[2], "Decode") == 0) decodeFile();
+        else print_usage();
+    } else {
+        print_usage();
+    }
+}
+
+```
