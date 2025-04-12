@@ -343,4 +343,104 @@ if (strcmp(argv[1], "--start") == 0) {
 ```
 
 
-    
+    # README - StarterKit Program (Soal Nomor 2)
+
+
+### b. Pembuatan Folder Otomatis
+**Soal:** Pastikan folder `starter_kit`, `quarantine`, dan `decrypted` dibuat jika belum ada.
+
+**Implementasi:**
+```c
+mkdir(STARTERKIT_DIR, 0777);
+mkdir(QUARANTINE_DIR, 0777);
+mkdir("decrypted", 0777);
+```
+
+### c. Dekripsi Nama File (Base64) dengan Daemon
+**Soal:** Jalankan dekripsi nama file dari base64 ke nama asli secara berkala (setiap 5 detik).
+
+**Implementasi:**
+```c
+void run_daemon_decrypt() {
+    // membaca file di folder quarantine dan mendekripsi nama file base64-nya
+    // menyimpan hasil dekripsi di folder decrypted (opsional)
+    // loop setiap 5 detik
+}
+```
+
+### d. Memindahkan File ke Folder Quarantine
+**Soal:** File dari `starter_kit` dipindahkan ke `quarantine`, lalu dicatat ke dalam `activity.log`
+
+**Implementasi:**
+```c
+void move_to_quarantine() {
+    // Iterasi file dalam starter_kit dan pindahkan ke quarantine
+    // Tulis log aktivitas
+}
+```
+
+### e. Mengembalikan File dari Quarantine ke Starter Kit
+**Soal:** Kembalikan file dari `quarantine` ke `starter_kit` jika diminta
+
+**Implementasi:**
+```c
+void return_to_starterkit() {
+    // Iterasi file dalam quarantine dan pindahkan kembali ke starter_kit
+    // Tulis log aktivitas
+}
+```
+
+### f. Menghapus File dalam Folder Quarantine
+**Soal:** Menghapus file yang ada dalam folder `quarantine` secara permanen
+
+**Implementasi:**
+```c
+void delete_quarantine_contents() {
+    // Iterasi dan hapus semua file dalam folder quarantine
+    // Tulis log aktivitas
+}
+```
+
+### g. Mematikan Proses Daemon
+**Soal:** Kirim sinyal `SIGTERM` ke proses daemon yang sedang berjalan
+
+**Implementasi:**
+```c
+void shutdown_daemon() {
+    // Baca PID dari decrypt.pid
+    // Kirim sinyal SIGTERM ke proses
+    // Hapus file decrypt.pid
+}
+```
+
+### h. Logging Aktivitas
+**Soal:** Setiap aktivitas penting ditulis ke dalam file `activity.log`
+
+**Implementasi:**
+```c
+void write_log(const char *msg) {
+    // Dapatkan waktu sekarang
+    // Tulis pesan + waktu ke dalam activity.log
+}
+```
+
+## Cara Menjalankan
+Program ini dijalankan dengan beberapa argumen sebagai berikut:
+```bash
+./starterkit --start       # Menjalankan program sebagai daemon
+./starterkit --decrypt     # Menjalankan proses daemon dekripsi
+./starterkit --quarantine  # Memindahkan file dari starter_kit ke quarantine
+./starterkit --return      # Mengembalikan file dari quarantine ke starter_kit
+./starterkit --eradicate   # Menghapus semua file dalam quarantine
+./starterkit --shutdown    # Mematikan proses daemon
+```
+
+## Catatan Penting
+- File di `quarantine` diasumsikan memiliki nama yang terenkripsi dalam format base64.
+- Direktori `decrypted` disiapkan untuk ekstensi di masa depan.
+- Selalu matikan proses daemon menggunakan `--shutdown` sebelum keluar atau restart sistem.
+
+---
+
+
+
