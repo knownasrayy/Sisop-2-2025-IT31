@@ -508,7 +508,71 @@ int download_data() {
 - `curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);` Memberitahu CURL untuk menyimpan data yang didownload langsung ke file fp.
 - `snprintf(perintahUnzip, sizeof(perintahUnzip), "unzip -o %s", namaFile); system(perintahUnzip);` Membuat dan menjalankan perintah unzip untuk mengekstrak isi dari file test.zip.
 
-2. 
+
+
+2. Enkripsi Rekursif File dengan XOR
+```bash
+void encryptfile(const char *lokasiFile, unsigned char kunci) {
+    FILE *fp = fopen(lokasiFile, "rb+");
+    if (!fp) return;
+
+    fseek(fp, 0, SEEK_END);
+    long ukuranFile = ftell(fp);
+    rewind(fp);
+
+    unsigned char *buffer = malloc(ukuranFile);
+    if (!buffer) {
+        fclose(fp);
+        return;
+    }
+
+    fread(buffer, 1, ukuranFile, fp);
+    rewind(fp);
+
+    for (long i = 0; i < ukuranFile; i++) {
+        buffer[i] ^= kunci;
+    }
+
+    fwrite(buffer, 1, ukuranFile, fp);
+    fclose(fp);
+    free(buffer);
+}
+
+void encrypt(const char *pathDasar, unsigned char kunci) {
+    struct dirent *entri;
+    DIR *direktori = opendir(pathDasar);
+    if (!direktori) return;
+
+    char pathLengkap[1024];
+
+    while ((entri = readdir(direktori)) != NULL) {
+        if (strcmp(entri->d_name, ".") == 0 || strcmp(entri->d_name, "..") == 0)
+            continue;
+
+        snprintf(pathLengkap, sizeof(pathLengkap), "%s/%s", pathDasar, entri->d_name);
+
+        struct stat infoPath;
+        if (stat(pathLengkap, &infoPath) == -1) continue;
+
+        if (S_ISDIR(infoPath.st_mode)) {
+            encrypt(pathLengkap, kunci);
+        } else if (S_ISREG(infoPath.st_mode)) {
+            encryptfile(pathLengkap, kunci);
+        }
+    }
+
+    closedir(direktori);
+}
+```
+- `FILE *fp = fopen(lokasiFile, "rb+"); if (!fp) return;`  Membuka file dalam mode baca dan tulis biner.
+- `fseek(fp, 0, SEEK_END); long ukuranFile = ftell(fp); rewind(fp);` Digunakan untuk menentukan ukuran file. fseek memindahkan kursor ke akhir file, lalu ftell mengambil posisi kursor (yang berarti ukuran file). rewind mengembalikan posisi baca ke awal file.
+- `unsigned char *buffer = malloc(ukuranFile);
+if (!buffer) {
+    fclose(fp);
+    return;
+}`
+Mengalokasikan memori sebanyak ukuran file untuk menampung isi file.
+
 
 
 
