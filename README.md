@@ -673,9 +673,9 @@ if (pid > 0) exit(EXIT_SUCCESS);` Melakukan fork() untuk membuat proses anak.
 sid = setsid();
 if (sid < 0) exit(EXIT_FAILURE);
 if ((chdir("/")) < 0) exit(EXIT_FAILURE);`
-* umask(0) mengatur permission default file agar tidak dibatasi.
-* setsid() membuat sesi baru agar proses menjadi leader tanpa terminal kontrol.
-* chdir("/") mengubah direktori kerja ke root (/) agar daemon tidak mengunci direktori.
+1) umask(0) mengatur permission default file agar tidak dibatasi.
+2) setsid() membuat sesi baru agar proses menjadi leader tanpa terminal kontrol.
+3) chdir("/") mengubah direktori kerja ke root (/) agar daemon tidak mengunci direktori.
 
 
 
