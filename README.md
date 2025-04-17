@@ -443,6 +443,77 @@ Program ini dijalankan dengan beberapa argumen sebagai berikut:
 ---
 
 ## Soal_3 - Malware
+### Deskripsi Singkat
+"Dok dok dorokdok dok rodok" adalah malware buatan Andriana dari PT Mafia Security Cabang Ngawi, yang dirancang untuk menyusup dan menginfeksi sistem Linux secara stealth melalui daemon berproses /init. Malware ini memiliki 4 fitur utama:
+
+1. wannacryptor
+Encryptor yang bekerja setiap 30 detik.
+Kelompok ganjil: enkripsi file dan folder secara rekursif menggunakan XOR dengan timestamp.
+Kelompok genap: folder dikompresi menjadi .zip, lalu dienkripsi dan folder asli dihapus.
+
+2. trojan.wrm
+Spreader yang menyebarkan malware ke seluruh direktori di dalam ~/ dengan menyalin binary malware ke setiap folder.
+
+3. rodok.exe
+Fork bomb terkontrol yang menjalankan minimal 3 proses anak bernama mine-crafter-XX.
+
+4. /init
+Proses utama yang berubah nama menjadi /init untuk menyembunyikan diri di daftar proses, bekerja sebagai daemon.
+
+### Alur Pengerjaan
+
+
+### Penjelasan kode
+
+1. Buatlah sebuah folder kosong baru di directory home dan gunakan folder di dalam zip https://drive.google.com/file/d/12COBJZHO3orgy8LYCVOIVr0DPvI0Twzy/view?usp=sharing untuk memperagakan sub soal
+```bash
+int download_data() {
+    CURL *curl;
+    FILE *fp;
+    CURLcode res;
+
+    const char *url = "https://www.googleapis.com/drive/v3/files/12COBJZHO3orgy8LYCVOIVr0DPvI0Twzy?alt=media&key=AIzaSyB6kgi_bSqmnbnMxydPwnC2UFsBj4VPId8"; //Link file gdrive yang akan didownload
+    const char *namaFile = "test.zip"; //Nama file setelah didownload
+
+    curl = curl_easy_init();
+    if (curl) {
+        fp = fopen(namaFile, "wb");   // Membuka file untuk ditulis dalam mode binary
+        if (!fp) return 1;
+
+        curl_easy_setopt(curl, CURLOPT_URL, url);  
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);  
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); 
+
+        res = curl_easy_perform(curl);  
+        curl_easy_cleanup(curl);
+        fclose(fp);
+
+        if (res != CURLE_OK) return 1;
+    } else {
+        return 1;
+    }
+
+    // Ekstrak file zip setelah berhasil didownload
+    char perintahUnzip[256];
+    snprintf(perintahUnzip, sizeof(perintahUnzip), "unzip -o %s", namaFile); 
+    int hasilUnzip = system(perintahUnzip);
+    if (hasilUnzip != 0) return 1;
+
+    return 0;
+}
+```
+- `curl_easy_setopt(curl, CURLOPT_URL, url);` Digunakan untuk mengatur link sumber file yang akan didownload.
+- `fp = fopen(namaFile, "wb");` Membuka file test.zip untuk ditulis dalam bentuk binary (wb = write binary), sebagai tujuan hasil download.
+- `curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);` Memberitahu CURL untuk menyimpan data yang didownload langsung ke file fp.
+- `snprintf(perintahUnzip, sizeof(perintahUnzip), "unzip -o %s", namaFile); system(perintahUnzip);` Membuat dan menjalankan perintah unzip untuk mengekstrak isi dari file test.zip.
+
+2. 
+
+
+
+
+
 
 
 
