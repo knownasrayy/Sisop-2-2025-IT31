@@ -472,12 +472,12 @@ int download_data() {
     FILE *fp;
     CURLcode res;
 
-    const char *url = "https://www.googleapis.com/drive/v3/files/12COBJZHO3orgy8LYCVOIVr0DPvI0Twzy?alt=media&key=AIzaSyB6kgi_bSqmnbnMxydPwnC2UFsBj4VPId8"; //Link file gdrive yang akan didownload
-    const char *namaFile = "test.zip"; //Nama file setelah didownload
+    const char *url = "https://www.googleapis.com/drive/v3/files/12COBJZHO3orgy8LYCVOIVr0DPvI0Twzy?alt=media&key=AIzaSyB6kgi_bSqmnbnMxydPwnC2UFsBj4VPId8"; # Link file gdrive yang akan didownload
+    const char *namaFile = "test.zip"; # Nama file setelah didownload
 
     curl = curl_easy_init();
     if (curl) {
-        fp = fopen(namaFile, "wb");   // Membuka file untuk ditulis dalam mode binary
+        fp = fopen(namaFile, "wb");   # Membuka file untuk ditulis dalam mode binary
         if (!fp) return 1;
 
         curl_easy_setopt(curl, CURLOPT_URL, url);  
@@ -494,7 +494,7 @@ int download_data() {
         return 1;
     }
 
-    // Ekstrak file zip setelah berhasil didownload
+    # Ekstrak file zip setelah berhasil didownload
     char perintahUnzip[256];
     snprintf(perintahUnzip, sizeof(perintahUnzip), "unzip -o %s", namaFile); 
     int hasilUnzip = system(perintahUnzip);
