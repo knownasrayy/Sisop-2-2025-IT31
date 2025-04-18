@@ -743,36 +743,32 @@ Program dibagi menjadi dua bagian utama: mode list dan mode daemon.
 Dengan dua pendekatan ini, program mampu memenuhi seluruh permintaan dari soal.
 
 #### - Fungsi ``list_processes(const char *username)``
-```1. 
+1. Mengambil informasi user berdasarkan username.
+``` 
 struct passwd *pw = getpwnam(username);
 ```
-Mengambil informasi user berdasarkan username.
-
-```2. 
+2. Mengonversi UID user ke bentuk string agar bisa dipakai sebagai argumen untuk perintah `ps`.
+``` 
 uid = pw->pw_uid;
 snprintf(uid_str, sizeof(uid_str), "%d", uid);
 ```
-Mengonversi UID user ke bentuk string agar bisa dipakai sebagai argumen untuk perintah `ps`.
-
-```3. 
+3. Menyusun argumen untuk menjalankan `ps` agar hanya menampilkan PID, nama proses, CPU%, dan memori%.
+``` 
 char *ps_args[] = {"ps", "-u", uid_str, "-o", "pid,comm,pcpu,pmem", "--no-headers", NULL};
 ```
-Menyusun argumen untuk menjalankan `ps` agar hanya menampilkan PID, nama proses, CPU%, dan memori%.
-
-```4.
+4. Membuat pipe dan melakukan fork() agar child process bisa menulis output ps ke parent melalui pipe.
+```
 pipe(pipefd);
 fork();
 ```
-Membuat pipe dan melakukan fork() agar child process bisa menulis output ps ke parent melalui pipe.
 
-5.
+5. Child process mengganti STDOUT ke pipe dan menjalankan perintah `ps`.
 ``` 
 dup2(pipefd[1], STDOUT_FILENO);
 execvp("ps", ps_args);
 ```
-Child process mengganti STDOUT ke pipe dan menjalankan perintah `ps`.
+6. Parent process membaca hasil output dari pipe.
 
-```6.
+```
 read(pipefd[0], buffer, sizeof(buffer));
 ```
-Parent process membaca hasil output dari pipe.
