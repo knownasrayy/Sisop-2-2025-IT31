@@ -737,7 +737,7 @@ File log ini akan terus bertambah isinya selama daemon berjalan.
 Program dibagi menjadi dua bagian utama: mode list dan mode daemon.
 
 - Untuk mode list, digunakan fungsi getpwnam() untuk mendapatkan UID dari username, lalu ps digunakan untuk mengambil proses milik UID tersebut. Hasil ps diambil melalui pipe dan fork(), lalu dibaca dan ditampilkan ke terminal.
-
+``w``
 - Untuk mode daemon, dilakukan proses daemonizing dengan dua kali fork() dan setsid(). Program kemudian berjalan dalam loop tak hingga, dan setiap 10 detik akan memanggil kembali fungsi list_processes() untuk mencatat output ke file log.
 
 Dengan dua pendekatan ini, program mampu memenuhi seluruh permintaan dari soal.
