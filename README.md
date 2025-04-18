@@ -702,13 +702,26 @@ Program ini dibuat untuk meniru fungsi alat Debugmon dalam cerita, yaitu **meman
 1. **List mode**: Menampilkan proses yang sedang berjalan oleh user tertentu.
 2. **Daemon mode**: Menjalankan pemantauan secara terus-menerus dalam mode daemon dan mencatatnya ke dalam log file.
 
-### Cara Kerja Program (`debugmon.c`)
+### Pengerjaan Program (`debugmon.c`)
 
-#### Mode 1: List User Processes
+#### 1: List User Processes
 
 ```bash
-./debugmon list <username>
+./debugmon list <username> 
+```
+Menampilkan semua proses aktif milik <username>
 
+Informasi yang ditunjukkan:
+
+    PID
+
+    Nama Proses
+
+    CPU Usage (%)
+
+    Memory Usage (%)
+
+Output hanya sekali langsung ke terminal
 
 
 
