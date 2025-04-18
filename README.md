@@ -713,13 +713,13 @@ Menampilkan semua proses aktif milik <username>
 
 Informasi yang ditunjukkan:
 
-    PID
+- PID
 
-    Nama Proses
+- Nama Proses
 
-    CPU Usage (%)
+- CPU Usage (%)
 
-    Memory Usage (%)
+- Memory Usage (%)
 
 Output hanya sekali langsung ke terminal
 
