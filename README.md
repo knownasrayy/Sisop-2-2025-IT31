@@ -747,3 +747,31 @@ Dengan dua pendekatan ini, program mampu memenuhi seluruh permintaan dari soal.
 struct passwd *pw = getpwnam(username);
 ```
 - Mengambil informasi user berdasarkan username.
+
+```
+uid = pw->pw_uid;
+snprintf(uid_str, sizeof(uid_str), "%d", uid);
+```
+- Mengonversi UID user ke bentuk string agar bisa dipakai sebagai argumen untuk perintah `ps`.
+
+```
+char *ps_args[] = {"ps", "-u", uid_str, "-o", "pid,comm,pcpu,pmem", "--no-headers", NULL};
+```
+- Menyusun argumen untuk menjalankan `ps` agar hanya menampilkan PID, nama proses, CPU%, dan memori%.
+
+```
+pipe(pipefd);
+fork();
+```
+- Membuat pipe dan melakukan fork() agar child process bisa menulis output ps ke parent melalui pipe.
+
+```
+dup2(pipefd[1], STDOUT_FILENO);
+execvp("ps", ps_args);
+```
+- Child process mengganti STDOUT ke pipe dan menjalankan perintah `ps`.
+
+```
+read(pipefd[0], buffer, sizeof(buffer));
+```
+- Parent process membaca hasil output dari pipe.
