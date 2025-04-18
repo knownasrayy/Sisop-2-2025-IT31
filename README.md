@@ -901,20 +901,20 @@ struct tm *tm_info = localtime(&t);
 strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
 ```
 
-### Contoh Penggunaan
+### Contoh Penggunaan:
 ```
 ./debugmon list alice
 ./debugmon daemon bob
 ```
 
-### Contoh Output (Terminal)
+### Contoh Output (Terminal):
 ```bash
 PID        COMMAND             CPU%       MEM%
 1234       bash                0.0        0.1%
 5678       firefox             5.4        10.3%
 ```
 
-### Contoh Output (File Log)
+### Contoh Output (File Log):
 ```bash
 [2025-04-18 13:50:12] debugmon_bob STATUS(RUNNING)
 PID        COMMAND             CPU%       MEM%
@@ -922,7 +922,7 @@ PID        COMMAND             CPU%       MEM%
 5678       firefox             5.4        10.3%
 ```
 
-### Output File
+### Output File:
 Log akan disimpan di:
 ```bash
 /tmp/debugmon_<username>.log
