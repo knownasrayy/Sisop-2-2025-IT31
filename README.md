@@ -704,7 +704,7 @@ Program ini dibuat untuk meniru fungsi alat Debugmon dalam cerita, yaitu **meman
 
 ### Pengerjaan Program (`debugmon.c`)
 
-#### 4a. Mode List
+### 4a. Mode List
 
 ```bash
 ./debugmon list <username> 
@@ -723,7 +723,7 @@ Informasi yang ditunjukkan:
 
 Output hanya sekali langsung ke terminal
 
-#### 4b. Mode Daemon
+### 4b. Mode Daemon
 
 ```bash
 ./debugmon daemon <username>
@@ -743,3 +743,7 @@ Program dibagi menjadi dua bagian utama: mode list dan mode daemon.
 Dengan dua pendekatan ini, program mampu memenuhi seluruh permintaan dari soal.
 
 #### Fungsi ``list_processes(const char *username)``
+```
+struct passwd *pw = getpwnam(username);
+```
+- Mengambil informasi user berdasarkan username.
