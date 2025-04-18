@@ -2,19 +2,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/stat.h>     // a. Untuk mkdir()
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <time.h>
 #include <signal.h>
 
-#define QUARANTINE_DIR "quarantine"
 #define STARTERKIT_DIR "starter_kit"
+#define QUARANTINE_DIR "quarantine"
+#define DECRYPTED_DIR "decrypted"
 #define LOG_FILE "activity.log"
 #define PID_FILE "decrypt.pid"
+#define ZIP_FILE "starter_kit.zip"
+#define DOWNLOAD_LINK "https://drive.google.com/uc?export=download&id=1_5GxIGfQr3mNKuavJbte_AoRkEQLXSKS"
 
-// g. Logging aktivitas ke activity.log
+// Logging aktivitas
 void write_log(const char *msg) {
     FILE *log = fopen(LOG_FILE, "a");
     if (!log) return;
@@ -27,7 +30,57 @@ void write_log(const char *msg) {
     fclose(log);
 }
 
-// b. Dekripsi base64 dari nama file
+// Download & unzip starter kit jika belum ada atau kosong
+void download_and_extract() {
+    struct stat st;
+    int need_download = 0;
+
+    if (stat(STARTERKIT_DIR, &st) == 0 && S_ISDIR(st.st_mode)) {
+        // Folder ada, cek apakah kosong
+        DIR *dir = opendir(STARTERKIT_DIR);
+        struct dirent *entry;
+        int file_count = 0;
+
+        if (dir) {
+            while ((entry = readdir(dir)) != NULL) {
+                if (entry->d_type == DT_REG || entry->d_type == DT_DIR) {
+                    if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+                        file_count++;
+                    }
+                }
+            }
+            closedir(dir);
+        }
+
+        if (file_count == 0) {
+            need_download = 1;
+        } else {
+            printf("starter_kit already exists and is not empty. Skipping download.\n");
+            return;
+        }
+    } else {
+        need_download = 1;
+    }
+
+    if (need_download) {
+        printf("Downloading starter_kit.zip...\n");
+        char command[1024];
+        snprintf(command, sizeof(command),
+            "command -v wget >/dev/null 2>&1 && wget --no-check-certificate \"%s\" -O %s && unzip -o %s -d %s && rm %s || command -v curl >/dev/null 2>&1 && curl -L \"%s\" -o %s && unzip -o %s -d %s && rm %s",
+            DOWNLOAD_LINK, ZIP_FILE, ZIP_FILE, STARTERKIT_DIR, ZIP_FILE,
+            DOWNLOAD_LINK, ZIP_FILE, ZIP_FILE, STARTERKIT_DIR, ZIP_FILE);
+
+        int result = system(command);
+        if (result == 0) {
+            printf("Download and extraction complete.\n");
+        } else {
+            fprintf(stderr, "Failed to download or extract files.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
+// Dekripsi nama file dari base64
 void base64_decode(const char *src, char *dest) {
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "echo %s | base64 -d", src);
@@ -38,7 +91,7 @@ void base64_decode(const char *src, char *dest) {
     }
 }
 
-// b. Menjalankan proses daemon dekripsi nama file dari base64
+// Daemon dekripsi
 void run_daemon_decrypt() {
     pid_t pid = fork();
     if (pid < 0) exit(EXIT_FAILURE);
@@ -53,10 +106,11 @@ void run_daemon_decrypt() {
         write_log(msg);
         return;
     }
-    setsid(); // buat proses baru agar menjadi daemon
+
+    setsid(); // jadi daemon
 
     while (1) {
-        DIR *dir = opendir(QUARANTINE_DIR);
+        DIR *dir = opendir(STARTERKIT_DIR);
         if (dir) {
             struct dirent *ent;
             while ((ent = readdir(dir)) != NULL) {
@@ -64,13 +118,11 @@ void run_daemon_decrypt() {
                     char decoded[256] = {0};
                     base64_decode(ent->d_name, decoded);
                     if (strlen(decoded) == 0) continue;
-
-                    // Menghapus newline hasil decode
                     decoded[strcspn(decoded, "\n")] = 0;
 
                     char old_path[512], new_path[512];
-                    snprintf(old_path, sizeof(old_path), "%s/%s", QUARANTINE_DIR, ent->d_name);
-                    snprintf(new_path, sizeof(new_path), "%s/%s", QUARANTINE_DIR, decoded);
+                    snprintf(old_path, sizeof(old_path), "%s/%s", STARTERKIT_DIR, ent->d_name);
+                    snprintf(new_path, sizeof(new_path), "%s/%s", STARTERKIT_DIR, decoded);
 
                     if (rename(old_path, new_path) == 0) {
                         char log_msg[512];
@@ -81,11 +133,11 @@ void run_daemon_decrypt() {
             }
             closedir(dir);
         }
-        sleep(5); // jalan tiap 5 detik
+        sleep(5);
     }
 }
 
-// Digunakan untuk c, d
+// Pindah file dari from -> to
 void move_files(const char *from, const char *to, const char *action_msg) {
     DIR *dir = opendir(from);
     if (!dir) return;
@@ -106,17 +158,14 @@ void move_files(const char *from, const char *to, const char *action_msg) {
     closedir(dir);
 }
 
-// c. Memindahkan file dari starter_kit ke quarantine
 void move_to_quarantine() {
     move_files(STARTERKIT_DIR, QUARANTINE_DIR, "moved to quarantine directory");
 }
 
-// d. Mengembalikan file dari quarantine ke starter_kit
 void return_to_starterkit() {
     move_files(QUARANTINE_DIR, STARTERKIT_DIR, "returned to starter kit directory");
 }
 
-// e. Menghapus semua file dari folder quarantine
 void delete_quarantine_contents() {
     DIR *dir = opendir(QUARANTINE_DIR);
     if (!dir) return;
@@ -136,7 +185,6 @@ void delete_quarantine_contents() {
     closedir(dir);
 }
 
-// f. Mematikan proses daemon dan menghapus decrypt.pid
 void shutdown_daemon() {
     FILE *f = fopen(PID_FILE, "r");
     if (!f) {
@@ -152,7 +200,6 @@ void shutdown_daemon() {
     }
     fclose(f);
 
-    // Untuk apakah proses masih aktif
     if (kill(pid, 0) == -1) {
         printf("No such process with PID %d.\n", pid);
         write_log("PID file found but no such process exists. Removing stale PID file.");
@@ -160,7 +207,6 @@ void shutdown_daemon() {
         return;
     }
 
-    // Untuk mengirim sinyal SIGTERM untuk menghentikan daemon
     if (kill(pid, SIGTERM) == 0) {
         char msg[128];
         sprintf(msg, "Successfully shut off decryption process with PID %d.", pid);
@@ -171,7 +217,6 @@ void shutdown_daemon() {
     }
 }
 
-// Untuk Menampilkan bantuan perintah
 void print_usage() {
     printf("Usage:\n");
     printf("./starterkit --decrypt\n");
@@ -182,21 +227,22 @@ void print_usage() {
 }
 
 int main(int argc, char *argv[]) {
-    // a. Membuat direktori starter_kit, quarantine, dan decrypted (kalau belum ada)
     mkdir(STARTERKIT_DIR, 0777);
     mkdir(QUARANTINE_DIR, 0777);
-    mkdir("decrypted", 0777); // meskipun belum digunakan,tetapi sesuai soal
+    mkdir(DECRYPTED_DIR, 0777);
+
+    download_and_extract();
 
     if (argc != 2) {
         print_usage();
         return 1;
     }
 
-    if (strcmp(argv[1], "--decrypt") == 0) run_daemon_decrypt();        // b
-    else if (strcmp(argv[1], "--quarantine") == 0) move_to_quarantine(); // c
-    else if (strcmp(argv[1], "--return") == 0) return_to_starterkit();   // d
-    else if (strcmp(argv[1], "--eradicate") == 0) delete_quarantine_contents(); // e
-    else if (strcmp(argv[1], "--shutdown") == 0) shutdown_daemon();      // f
+    if (strcmp(argv[1], "--decrypt") == 0) run_daemon_decrypt();
+    else if (strcmp(argv[1], "--quarantine") == 0) move_to_quarantine();
+    else if (strcmp(argv[1], "--return") == 0) return_to_starterkit();
+    else if (strcmp(argv[1], "--eradicate") == 0) delete_quarantine_contents();
+    else if (strcmp(argv[1], "--shutdown") == 0) shutdown_daemon();
     else print_usage();
 
     return 0;
