@@ -756,7 +756,7 @@ snprintf(uid_str, sizeof(uid_str), "%d", uid);
 ``` 
 char *ps_args[] = {"ps", "-u", uid_str, "-o", "pid,comm,pcpu,pmem", "--no-headers", NULL};
 ```
-4. Membuat pipe dan melakukan fork() agar child process bisa menulis output ps ke parent melalui pipe.
+4. Membuat `pipe` dan melakukan `fork()` agar child process bisa menulis output `ps` ke parent melalui pipe.
 ```
 pipe(pipefd);
 fork();
@@ -771,4 +771,31 @@ execvp("ps", ps_args);
 
 ```
 read(pipefd[0], buffer, sizeof(buffer));
+```
+
+
+#### - Fungsi ``run_as_daemon(const char *username)``
+1. Melakukan double fork dan `setsid()` agar program bisa berjalan sebagai daemon (background process yang tidak terikat terminal).
+``` 
+pid = fork();
+if (pid > 0) exit(EXIT_SUCCESS);
+setsid();
+pid = fork();
+if (pid > 0) exit(EXIT_SUCCESS);
+```
+2. Program melakukan monitoring setiap 10 detik dan mencatat hasilnya ke file log `/tmp/debugmon_<username>.log`.
+``` 
+while (1) {
+    FILE *fp = fopen(log_file, "a");
+    ...
+    list_processes(username);
+    fclose(fp);
+    sleep(10);
+}
+```
+3. Mengambil timestamp saat ini dalam format `[YYYY-MM-DD HH:MM:SS]` untuk menandai waktu pencatatan log.
+``` 
+time_t t = time(NULL);
+struct tm *tm_info = localtime(&t);
+strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
 ```
