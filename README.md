@@ -843,7 +843,7 @@ Program dibagi menjadi dua bagian utama: mode list dan mode daemon.
 
 Dengan dua pendekatan ini, program mampu memenuhi seluruh permintaan dari soal.
 
-#### - Fungsi ``list_processes(const char *username)``
+### - Fungsi ``list_processes(const char *username)``
 1. Mengambil informasi user berdasarkan username.
 ```bash 
 struct passwd *pw = getpwnam(username);
@@ -875,7 +875,7 @@ read(pipefd[0], buffer, sizeof(buffer));
 ```
 
 
-#### - Fungsi ``run_as_daemon(const char *username)``
+### - Fungsi ``run_as_daemon(const char *username)``
 1. Melakukan double fork dan `setsid()` agar program bisa berjalan sebagai daemon (background process yang tidak terikat terminal).
 ```bash 
 pid = fork();
@@ -900,3 +900,33 @@ time_t t = time(NULL);
 struct tm *tm_info = localtime(&t);
 strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
 ```
+
+### Contoh Penggunaan
+```
+./debugmon list alice
+./debugmon daemon bob
+```
+
+### Contoh Output (Terminal)
+```bash
+PID        COMMAND             CPU%       MEM%
+1234       bash                0.0        0.1%
+5678       firefox             5.4        10.3%
+```
+
+### Contoh Output (File Log)
+```bash
+[2025-04-18 13:50:12] debugmon_bob STATUS(RUNNING)
+PID        COMMAND             CPU%       MEM%
+1234       bash                0.0        0.1%
+5678       firefox             5.4        10.3%
+```
+
+### Output File
+Log akan disimpan di:
+```bash
+/tmp/debugmon_<username>.log
+```
+
+Setiap `10 detik`, log akan diperbarui dan ditambahkan ke file tersebut secara terus-menerus selama daemon berjalan.
+
