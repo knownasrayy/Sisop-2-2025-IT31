@@ -684,10 +684,10 @@ if ((chdir("/")) < 0) exit(EXIT_FAILURE);`
     trojan(direktoriTarget, lokasiSendiri);
     sleep(30);
 }` 
-1) Mengambil waktu saat ini (time(NULL)), dan mengubahnya menjadi kunci XOR.
-2) Menjalankan fungsi encrypt untuk enkripsi seluruh file di direktori target dengan kunci tersebut.
-3) Menjalankan fungsi trojan untuk menyebarkan file malware ke seluruh subdirektori.
-4) Looping setiap 30 detik.
+ 1. Mengambil waktu saat ini (time(NULL)), dan mengubahnya menjadi kunci XOR.
+ 2. Menjalankan fungsi encrypt untuk enkripsi seluruh file di direktori target dengan kunci tersebut.
+ 3. Menjalankan fungsi trojan untuk menyebarkan file malware ke seluruh subdirektori.
+ 4. Looping setiap 30 detik.
 
 
 ### REVISI
