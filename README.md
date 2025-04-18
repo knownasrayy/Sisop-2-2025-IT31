@@ -765,7 +765,8 @@ fork();
 ```
 Membuat pipe dan melakukan fork() agar child process bisa menulis output ps ke parent melalui pipe.
 
-```5. 
+5.
+``` 
 dup2(pipefd[1], STDOUT_FILENO);
 execvp("ps", ps_args);
 ```
