@@ -689,6 +689,100 @@ if ((chdir("/")) < 0) exit(EXIT_FAILURE);`
 3) Menjalankan fungsi trojan untuk menyebarkan file malware ke seluruh subdirektori.
 4) Looping setiap 30 detik.
 
+
+### REVISI
+
+1. Generate random hex
+```bash
+void generate_random_hex(char *output, size_t length) {
+    const char *hex_chars = "0123456789abcdef";
+    for (size_t i = 0; i < length; i++) {
+        output[i] = hex_chars[rand() % 16];
+    }
+    output[length] = '\0';
+}
+```
+
+- Untuk membuat string acak berisi karakter heksadesimal (0-9, a-f).
+- Panjang hasil ditentukan oleh argumen `length`.
+
+2. Mining output
+```bash
+void log_miner_output(int miner_id, const char *hash) {
+    FILE *logfile = fopen("/tmp/.miner.log", "a");
+    if (!logfile) return;
+
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+
+    fprintf(logfile, "[%04d-%02d-%02d %02d:%02d:%02d][Miner %02d] %s\n",
+        t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+        t->tm_hour, t->tm_min, t->tm_sec,
+        miner_id, hash);
+
+    fclose(logfile);
+}
+```
+- Mencatat aktivitas mining ke file log `/tmp/.miner.log`.
+- Format lognya adalah timestamp, ID miner, dan hash palsu.
+- `FILE *logfile = fopen(..., "a")` artinya log ditambahkan ke akhir file.
+
+3. Proses mining
+```bash
+void miner_process(int id) {
+    char proc_name[64];
+    snprintf(proc_name, sizeof(proc_name), "mine-crafter-%02d", id);
+    prctl(PR_SET_NAME, (unsigned long)proc_name, 0, 0, 0);
+
+    srand(time(NULL) ^ (getpid() << 16));
+
+    while (1) {
+        char hash[65];
+        generate_random_hex(hash, 64);
+        log_miner_output(id, hash);
+        sleep(3 + rand() % 28);
+    }
+}
+```
+- `snprintf(proc_name, sizeof(proc_name), "mine-crafter-%02d", id);` Membentuk nama proses dengan format `mine-crafter-XX`.
+- `prctl(PR_SET_NAME, (unsigned long)proc_name, 0, 0, 0);` mengubah nama proses yang muncul di task manager atau daftar proses.
+- `srand(time(NULL) ^ (getpid() << 16));` Menetapkan seed untuk fungsi rand() untuk menghasilkan angka acak.
+
+4. Rodok.exe
+```bash
+void rodok_bomb() {
+    int max_miners = 3;
+
+    for (int i = 0; i < max_miners; i++) {
+        pid_t pid = fork();
+        if (pid == 0) {
+            miner_process(i);
+            exit(0);
+        }
+    }
+
+    while (1) pause(); 
+}
+```
+- `int max_miners = 3;` menetapkan berapa banyak proses miner yang akan dijalankan.
+- `for (int i = 0; i < max_miners; i++) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        miner_process(i);
+        exit(0);
+    }
+}`
+  1. `for (int i = 0; i < max_miners; i++)` Loop ini akan diulang sebanyak `max_miners`.
+  2. `pid_t pid = fork();` Fungsi `fork()` digunakan untuk membuat child process yang baru.
+
+- `while (1) pause();`  loop yang berjalan terus-menerus tanpa henti sampai dihentikan.
+  
+
+
+
+
+
+
 ## Soal 4_Debugmon 
 
 ### Deskripsi Singkat
