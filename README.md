@@ -744,39 +744,39 @@ Dengan dua pendekatan ini, program mampu memenuhi seluruh permintaan dari soal.
 
 #### - Fungsi ``list_processes(const char *username)``
 1. Mengambil informasi user berdasarkan username.
-``` 
+```bash 
 struct passwd *pw = getpwnam(username);
 ```
 2. Mengonversi UID user ke bentuk string agar bisa dipakai sebagai argumen untuk perintah `ps`.
-``` 
+```bash 
 uid = pw->pw_uid;
 snprintf(uid_str, sizeof(uid_str), "%d", uid);
 ```
 3. Menyusun argumen untuk menjalankan `ps` agar hanya menampilkan PID, nama proses, CPU%, dan memori%.
-``` 
+```bash 
 char *ps_args[] = {"ps", "-u", uid_str, "-o", "pid,comm,pcpu,pmem", "--no-headers", NULL};
 ```
 4. Membuat `pipe` dan melakukan `fork()` agar child process bisa menulis output `ps` ke parent melalui pipe.
-```
+```bash
 pipe(pipefd);
 fork();
 ```
 
 5. Child process mengganti STDOUT ke pipe dan menjalankan perintah `ps`.
-``` 
+```bash 
 dup2(pipefd[1], STDOUT_FILENO);
 execvp("ps", ps_args);
 ```
-6. Parent process membaca hasil output dari pipe.
 
-```
+6. Parent process membaca hasil output dari pipe.
+```bash
 read(pipefd[0], buffer, sizeof(buffer));
 ```
 
 
 #### - Fungsi ``run_as_daemon(const char *username)``
 1. Melakukan double fork dan `setsid()` agar program bisa berjalan sebagai daemon (background process yang tidak terikat terminal).
-``` 
+```bash 
 pid = fork();
 if (pid > 0) exit(EXIT_SUCCESS);
 setsid();
@@ -784,7 +784,7 @@ pid = fork();
 if (pid > 0) exit(EXIT_SUCCESS);
 ```
 2. Program melakukan monitoring setiap 10 detik dan mencatat hasilnya ke file log `/tmp/debugmon_<username>.log`.
-``` 
+```bash 
 while (1) {
     FILE *fp = fopen(log_file, "a");
     ...
@@ -794,7 +794,7 @@ while (1) {
 }
 ```
 3. Mengambil timestamp saat ini dalam format `[YYYY-MM-DD HH:MM:SS]` untuk menandai waktu pencatatan log.
-``` 
+```bash 
 time_t t = time(NULL);
 struct tm *tm_info = localtime(&t);
 strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
