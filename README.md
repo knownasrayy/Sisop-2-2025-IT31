@@ -1072,5 +1072,5 @@ Log akan disimpan di:
 /tmp/debugmon_<username>.log
 ```
 
-Setiap `10 detik`, log akan diperbarui dan ditambahkan ke file tersebut secara terus-menerus selama daemon berjalan.
+Setiap **10 detik**, log akan diperbarui dan ditambahkan ke file tersebut secara terus-menerus selama daemon berjalan.
 
