@@ -442,6 +442,70 @@ Program ini dijalankan dengan beberapa argumen sebagai berikut:
 
 ---
 
+## Revisi soal 2
+### Untuk memastikan bahwa folder starter_kit berisi file yang diperlukan, program akan mengecek apakah folder tersebut ada dan tidak kosong. Jika folder tersebut kosong atau tidak ada, maka file starter kit akan diunduh dari Google Drive dan diekstrak.
+
+**Implementasi:**
+```c
+void download_and_extract() {
+    struct stat st;
+    int need_download = 0;
+
+    if (stat(STARTERKIT_DIR, &st) == 0 && S_ISDIR(st.st_mode)) {
+        // Folder ada, cek apakah kosong
+        DIR *dir = opendir(STARTERKIT_DIR);
+        struct dirent *entry;
+        int file_count = 0;
+
+        if (dir) {
+            while ((entry = readdir(dir)) != NULL) {
+                if (entry->d_type == DT_REG || entry->d_type == DT_DIR) {
+                    if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+                        file_count++;
+                    }
+                }
+            }
+            closedir(dir);
+        }
+
+        if (file_count == 0) {
+            need_download = 1;
+        } else {
+            printf("starter_kit already exists and is not empty. Skipping download.\n");
+            return;
+        }
+    } else {
+        need_download = 1;
+    }
+
+    if (need_download) {
+        printf("Downloading starter_kit.zip...\n");
+        char command[1024];
+        snprintf(command, sizeof(command),
+            "command -v wget >/dev/null 2>&1 && wget --no-check-certificate \"%s\" -O %s && unzip -o %s -d %s && rm %s || command -v curl >/dev/null 2>&1 && curl -L \"%s\" -o %s && unzip -o %s -d %s && rm %s",
+            DOWNLOAD_LINK, ZIP_FILE, ZIP_FILE, STARTERKIT_DIR, ZIP_FILE,
+            DOWNLOAD_LINK, ZIP_FILE, ZIP_FILE, STARTERKIT_DIR, ZIP_FILE);
+
+        int result = system(command);
+        if (result == 0) {
+            printf("Download and extraction complete.\n");
+        } else {
+            fprintf(stderr, "Failed to download or extract files.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
+```
+## Penjelasan:
+Program ini dijalankan dengan beberapa argumen sebagai berikut:
+- Program akan memeriksa apakah folder starter_kit sudah ada dan tidak kosong.
+
+- Jika folder kosong atau tidak ada, maka program akan mengunduh file starter_kit.zip dari Google Drive dan mengekstraknya.
+
+- Jika file sudah ada dan tidak kosong, proses download akan dilewati.
+
+
 ## Soal_3 - Malware
 ### Deskripsi Singkat
 "Dok dok dorokdok dok rodok" adalah malware buatan Andriana dari PT Mafia Security Cabang Ngawi, yang dirancang untuk menyusup dan menginfeksi sistem Linux secara stealth melalui daemon berproses /init. Malware ini memiliki 4 fitur utama:
