@@ -693,9 +693,7 @@ if ((chdir("/")) < 0) exit(EXIT_FAILURE);`
 
 ### Deskripsi Singkat
 
-Suatu hari, Nobita menemukan alat aneh di laci mejanya. Alat itu adalah **Debugmon**, sebuah robot kecil dengan mata besar yang selalu berkedip-kedip. Doraemon menjelaskan bahwa Debugmon adalah **robot super kepo** yang bisa memantau semua aktivitas komputer. Tapi hati-hati! Kalau salah pakai, bisa-bisa komputer jadi error total! 😱
-
----
+Nobita menemukan alat aneh di laci mejanya. Alat itu adalah **Debugmon**, sebuah robot kecil dengan mata besar yang selalu berkedip-kedip. Doraemon menjelaskan bahwa Debugmon adalah **robot super kepo** yang bisa memantau semua aktivitas komputer. Tapi kalau salah pakai, komputernya bisa error total.
 
 ### Tujuan Program
 
@@ -704,11 +702,9 @@ Program ini dibuat untuk meniru fungsi alat Debugmon dalam cerita, yaitu **meman
 1. **List mode**: Menampilkan proses yang sedang berjalan oleh user tertentu.
 2. **Daemon mode**: Menjalankan pemantauan secara terus-menerus dalam mode daemon dan mencatatnya ke dalam log file.
 
----
+### Cara Kerja Program (`debugmon.c`)
 
-## 🧠 Cara Kerja Program (`debugmon.c`)
-
-### ✅ Mode 1: List User Processes
+#### Mode 1: List User Processes
 
 ```bash
 ./debugmon list <username>
