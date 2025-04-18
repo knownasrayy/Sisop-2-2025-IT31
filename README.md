@@ -689,11 +689,9 @@ if ((chdir("/")) < 0) exit(EXIT_FAILURE);`
 3) Menjalankan fungsi trojan untuk menyebarkan file malware ke seluruh subdirektori.
 4) Looping setiap 30 detik.
 
-## 4. Debugmon 👁️‍🗨️
+## Soal 4_Debugmon 
 
-**Author: Nayla / naylaarr**
-
-### Soal Cerita
+### Deskripsi Singkat
 
 Suatu hari, Nobita menemukan alat aneh di laci mejanya. Alat itu adalah **Debugmon**, sebuah robot kecil dengan mata besar yang selalu berkedip-kedip. Doraemon menjelaskan bahwa Debugmon adalah **robot super kepo** yang bisa memantau semua aktivitas komputer. Tapi hati-hati! Kalau salah pakai, bisa-bisa komputer jadi error total! 😱
 
