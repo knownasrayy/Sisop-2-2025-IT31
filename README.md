@@ -704,7 +704,7 @@ Program ini dibuat untuk meniru fungsi alat Debugmon dalam cerita, yaitu **meman
 
 ### Pengerjaan Program (`debugmon.c`)
 
-#### 1: List User Processes
+#### 4a. Mode List
 
 ```bash
 ./debugmon list <username> 
@@ -723,7 +723,24 @@ Informasi yang ditunjukkan:
 
 Output hanya sekali langsung ke terminal
 
+#### 4b. Mode Daemon
 
+```bash
+./debugmon daemon <username>
+```
+Mode ini akan menjalankan program sebagai daemon (proses background). Setiap 10 detik, program akan mencatat informasi proses milik user tersebut ke dalam file log:
+
+```bash
+/tmp/debugmon_<username>.log
+```
+File log ini akan terus bertambah isinya selama daemon berjalan.
+Program dibagi menjadi dua bagian utama: mode list dan mode daemon.
+
+- Untuk mode list, digunakan fungsi getpwnam() untuk mendapatkan UID dari username, lalu ps digunakan untuk mengambil proses milik UID tersebut. Hasil ps diambil melalui pipe dan fork(), lalu dibaca dan ditampilkan ke terminal.
+
+- Untuk mode daemon, dilakukan proses daemonizing dengan dua kali fork() dan setsid(). Program kemudian berjalan dalam loop tak hingga, dan setiap 10 detik akan memanggil kembali fungsi list_processes() untuk mencatat output ke file log.
+
+Dengan dua pendekatan ini, program mampu memenuhi seluruh permintaan dari soal.
 
 
 
