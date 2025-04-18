@@ -674,8 +674,11 @@ sid = setsid();
 if (sid < 0) exit(EXIT_FAILURE);
 if ((chdir("/")) < 0) exit(EXIT_FAILURE);`
    i. umask(0) mengatur permission default file agar tidak dibatasi.
+  
   ii. setsid() membuat sesi baru agar proses menjadi leader tanpa terminal kontrol.
+  
  iii. chdir("/") mengubah direktori kerja ke root (/) agar daemon tidak mengunci direktori.
+ 
 - `prctl(PR_SET_NAME, (unsigned long)"/init", 0, 0, 0);` Mengganti nama proses menjadi /init.
 - `while (1) {
     time_t waktu = time(NULL);
@@ -685,9 +688,13 @@ if ((chdir("/")) < 0) exit(EXIT_FAILURE);`
     sleep(30);
 }` 
     i. Mengambil waktu saat ini (time(NULL)), dan mengubahnya menjadi kunci XOR.
+  
    ii. Menjalankan fungsi encrypt untuk enkripsi seluruh file di direktori target dengan kunci tersebut.
+  
   iii. Menjalankan fungsi trojan untuk menyebarkan file malware ke seluruh subdirektori.
+  
  iiii. Looping setiap 30 detik.
+ 
 
 
 ### REVISI
